@@ -8,7 +8,7 @@ interface IProps {
 }
 
 const ProductCard = ({ product }: IProps) => {
-  const { category, colors, description, imageURL, price, title, id } = product;
+  const { category, description, imageURL, price, title, id } = product;
 
   return (
     <div
