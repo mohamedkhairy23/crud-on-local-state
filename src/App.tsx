@@ -56,14 +56,14 @@ const App = () => {
 
   const submitHandler = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    const { title, description, imageURL, price, colors } = product;
+    const { title, description, imageURL, price } = product;
 
     const errors = productValidation({
       title,
       description,
       price,
       imageURL,
-      colors,
+      colors: tempColors,
     });
     console.log(errors);
 
@@ -94,6 +94,7 @@ const App = () => {
 
   const onCancel = () => {
     setProduct(defaultProductObj);
+    setTempColors([]);
     closeModal();
   };
 
