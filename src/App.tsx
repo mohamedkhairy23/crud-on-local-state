@@ -1,12 +1,13 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import ProductCard from "./components/ProductCard";
 import Modal from "./components/UI/Modal";
-import { formInputsList, productList } from "./data";
+import { colors, formInputsList, productList } from "./data";
 import Button from "./components/UI/Button";
 import Input from "./components/UI/Input";
 import { IProduct } from "./interfaces";
 import { productValidation } from "./validation";
 import ErrorMessage from "./components/UI/ErrorMessage";
+import CircleColor from "./components/UI/CircleColor";
 
 const App = () => {
   const defaultProductObj = {
@@ -29,7 +30,8 @@ const App = () => {
     imageURL: "",
     price: "",
   });
-  console.log("errors", errors);
+  const [tempColors, setTempColors] = useState<string[]>([]);
+  console.log(tempColors);
 
   const closeModal = () => setIsOpen(false);
   const openModal = () => setIsOpen(true);
@@ -99,6 +101,20 @@ const App = () => {
     </div>
   ));
 
+  const renderProductColors = colors.map((color) => (
+    <CircleColor
+      color={color}
+      key={color}
+      onClick={() => {
+        if (tempColors.includes(color)) {
+          setTempColors((prev) => prev.filter((item) => item !== color));
+        } else {
+          setTempColors((prev) => [...prev, color]);
+        }
+      }}
+    />
+  ));
+
   return (
     <main className="container">
       <Button className="bg-indigo-700 hover:bg-indigo-800" onClick={openModal}>
@@ -110,6 +126,20 @@ const App = () => {
       <Modal isOpen={isOpen} closeModal={closeModal} title="ADD A NEW PRODUCT">
         <form className="space-y-3" onSubmit={submitHandler}>
           {renderFormInputList}
+          <div className="flex items-center space-x-2">
+            {renderProductColors}
+          </div>
+          <div className="flex items-center space-x-2">
+            {tempColors.map((color) => (
+              <span
+                key={color}
+                className="p-1 mr-1 mb-1 text-xs rounded-md text-white"
+                style={{ backgroundColor: color }}
+              >
+                {color}
+              </span>
+            ))}
+          </div>
           <div className="flex items-center space-x-3">
             <Button className="bg-indigo-700 hover:bg-indigo-800">
               Submit
