@@ -1,7 +1,7 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import ProductCard from "./components/ProductCard";
 import Modal from "./components/UI/Modal";
-import { colors, formInputsList, productList } from "./data";
+import { categories, colors, formInputsList, productList } from "./data";
 import Button from "./components/UI/Button";
 import Input from "./components/UI/Input";
 import { IProduct } from "./interfaces";
@@ -9,6 +9,7 @@ import { productValidation } from "./validation";
 import ErrorMessage from "./components/UI/ErrorMessage";
 import CircleColor from "./components/UI/CircleColor";
 import { v4 as uuid } from "uuid";
+import Select from "./components/UI/Select";
 
 const App = () => {
   const defaultProductObj = {
@@ -31,8 +32,11 @@ const App = () => {
     description: "",
     imageURL: "",
     price: "",
+    colors: "",
   });
   const [tempColors, setTempColors] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+
   console.log(tempColors);
 
   const closeModal = () => setIsOpen(false);
@@ -52,13 +56,14 @@ const App = () => {
 
   const submitHandler = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    const { title, description, imageURL, price } = product;
+    const { title, description, imageURL, price, colors } = product;
 
     const errors = productValidation({
       title,
       description,
       price,
       imageURL,
+      colors,
     });
     console.log(errors);
 
@@ -73,7 +78,12 @@ const App = () => {
     }
 
     setProducts((prev) => [
-      { ...product, id: uuid(), colors: tempColors },
+      {
+        ...product,
+        id: uuid(),
+        colors: tempColors,
+        category: selectedCategory,
+      },
       ...prev,
     ]);
 
@@ -135,20 +145,30 @@ const App = () => {
       <Modal isOpen={isOpen} closeModal={closeModal} title="ADD A NEW PRODUCT">
         <form className="space-y-3" onSubmit={submitHandler}>
           {renderFormInputList}
+
+          <Select
+            selected={selectedCategory}
+            setSelected={setSelectedCategory}
+          />
+
           <div className="flex items-center space-x-2">
             {renderProductColors}
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-wrap">
             {tempColors.map((color) => (
-              <span
-                key={color}
-                className="p-1 mr-1 mb-1 text-xs rounded-md text-white"
-                style={{ backgroundColor: color }}
-              >
-                {color}
-              </span>
-            ))}
+              <>
+                <span
+                  key={color}
+                  className="p-1 mr-1 mb-1 text-xs rounded-md text-white"
+                  style={{ backgroundColor: color }}
+                >
+                  {color}
+                </span>{" "}
+              </>
+            ))}{" "}
+            {tempColors.length === 0 && <ErrorMessage msg={errors["colors"]} />}
           </div>
+
           <div className="flex items-center space-x-3">
             <Button className="bg-indigo-700 hover:bg-indigo-800">
               Submit
