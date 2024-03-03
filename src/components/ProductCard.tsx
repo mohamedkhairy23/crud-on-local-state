@@ -2,13 +2,18 @@ import { IProduct } from "../interfaces";
 import { txtSlicer } from "../utils/function";
 import Image from "./Image";
 import Button from "./UI/Button";
+import CircleColor from "./UI/CircleColor";
 
 interface IProps {
   product: IProduct;
 }
 
 const ProductCard = ({ product }: IProps) => {
-  const { category, description, imageURL, price, title, id } = product;
+  const { category, colors, description, imageURL, price, title, id } = product;
+
+  const renderProductColors = colors.map((color) => (
+    <CircleColor color={color} key={color} />
+  ));
 
   return (
     <div
@@ -22,11 +27,8 @@ const ProductCard = ({ product }: IProps) => {
       />
       <h3>{title}</h3>
       <p>{txtSlicer(description)}</p>
-      <div className="flex items-center my-4 space-x-2">
-        <span className="w-5 h-5 bg-indigo-600 rounded-full cursor-pointer" />
-        <span className="w-5 h-5 bg-yellow-600 rounded-full cursor-pointer" />
-        <span className="w-5 h-5 bg-red-600 rounded-full cursor-pointer" />
-      </div>
+
+      <div className="flex items-center space-x-2">{renderProductColors}</div>
 
       <div className="flex justify-items-center justify-between">
         <span>${price}</span>
