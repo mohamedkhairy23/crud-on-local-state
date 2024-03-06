@@ -10,6 +10,7 @@ import ErrorMessage from "./components/UI/ErrorMessage";
 import CircleColor from "./components/UI/CircleColor";
 import { v4 as uuid } from "uuid";
 import Select from "./components/UI/Select";
+import { ProductNameTypes } from "./types";
 
 const App = () => {
   const defaultProductObj = {
@@ -26,6 +27,12 @@ const App = () => {
 
   const [products, setProducts] = useState<IProduct[]>(productList);
   const [product, setProduct] = useState<IProduct>(defaultProductObj);
+  const [productToEdit, setProductToEdit] =
+    useState<IProduct>(defaultProductObj);
+  console.log(productToEdit);
+  const [productToEditIdx, setProductToEditIdx] = useState<number>(0);
+  console.log(productToEditIdx);
+  const [isOpenEditModal, setIsOpenEditModal] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [errors, setErrors] = useState({
     title: "",
@@ -41,11 +48,25 @@ const App = () => {
 
   const closeModal = () => setIsOpen(false);
   const openModal = () => setIsOpen(true);
+  const closeEditModal = () => setIsOpenEditModal(false);
+  const openEditModal = () => setIsOpenEditModal(true);
 
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target;
     setProduct({
       ...product,
+      [name]: value,
+    });
+    setErrors({
+      ...errors,
+      [name]: "",
+    });
+  };
+
+  const onChangeEditHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value, name } = e.target;
+    setProductToEdit({
+      ...productToEdit,
       [name]: value,
     });
     setErrors({
@@ -92,14 +113,54 @@ const App = () => {
     closeModal();
   };
 
+  const submitEditHandler = (e: FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    const { title, description, imageURL, price } = productToEdit;
+    const errors = productValidation({
+      title,
+      description,
+      price,
+      imageURL,
+    });
+    console.log(errors);
+
+    // ** Check if any property has a value of "" && Check if all properties have a value of ""
+    const hasErrorMessage =
+      Object.values(errors).some((value) => value === "") &&
+      Object.values(errors).every((value) => value === "");
+
+    if (!hasErrorMessage) {
+      setErrors(errors);
+      return;
+    }
+
+    const updatedProducts = [...products];
+    updatedProducts[productToEditIdx] = {
+      ...productToEdit,
+      colors: tempColors.concat(productToEdit.colors),
+    };
+    setProducts(updatedProducts);
+
+    setProductToEdit(defaultProductObj);
+    setTempColors([]);
+    closeEditModal();
+  };
+
   const onCancel = () => {
     setProduct(defaultProductObj);
     setTempColors([]);
     closeModal();
   };
 
-  const renderProductList = products.map((product) => (
-    <ProductCard product={product} key={product.id} />
+  const renderProductList = products.map((product, idx) => (
+    <ProductCard
+      product={product}
+      key={product.id}
+      setProductToEdit={setProductToEdit}
+      openEditModal={openEditModal}
+      idx={idx}
+      setProductToEditIdx={setProductToEditIdx}
+    />
   ));
 
   const renderFormInputList = formInputsList.map((input) => (
@@ -128,12 +189,41 @@ const App = () => {
       onClick={() => {
         if (tempColors.includes(color)) {
           setTempColors((prev) => prev.filter((item) => item !== color));
-        } else {
-          setTempColors((prev) => [...prev, color]);
+          return;
         }
+        if (productToEdit.colors.includes(color)) {
+          setTempColors((prev) => prev.filter((item) => item !== color));
+          return;
+        }
+        setTempColors((prev) => [...prev, color]);
       }}
     />
   ));
+
+  const renderProducEditWithErrorMsg = (
+    id: string,
+    label: string,
+    name: ProductNameTypes
+  ) => {
+    return (
+      <div className="flex flex-col">
+        <label
+          htmlFor={id}
+          className="mb-[2px] text-sm font-medium text-gray-700"
+        >
+          {label}
+        </label>
+        <Input
+          type="text"
+          id={id}
+          name={name}
+          value={productToEdit[name]}
+          onChange={onChangeEditHandler}
+        />
+        <ErrorMessage msg={errors[name]} />
+      </div>
+    );
+  };
 
   return (
     <main className="container">
@@ -143,6 +233,63 @@ const App = () => {
       <div className="m-5 grid  grid-cols-1 sm:grid-cols-2  lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-4 p-2 rounded-md">
         {renderProductList}
       </div>
+
+      <Modal
+        isOpen={isOpenEditModal}
+        closeModal={closeEditModal}
+        title="EDIT PRODUCT"
+      >
+        <form className="space-y-3" onSubmit={submitEditHandler}>
+          {renderProducEditWithErrorMsg("title", "Product Title", "title")}
+          {renderProducEditWithErrorMsg(
+            "description",
+            "Product Description",
+            "description"
+          )}
+          {renderProducEditWithErrorMsg(
+            "imageURL",
+            "Product Title",
+            "imageURL"
+          )}
+          {renderProducEditWithErrorMsg("price", "Product Price", "price")}
+
+          <Select
+            selected={selectedCategory}
+            setSelected={setSelectedCategory}
+          />
+
+          <div className="flex items-center space-x-2">
+            {renderProductColors}
+          </div>
+          <div className="flex items-center space-x-2 flex-wrap">
+            {tempColors.concat(productToEdit.colors).map((color) => (
+              <>
+                <span
+                  key={color}
+                  className="p-1 mr-1 mb-1 text-xs rounded-md text-white"
+                  style={{ backgroundColor: color }}
+                >
+                  {color}
+                </span>{" "}
+              </>
+            ))}
+            {tempColors.length === 0 && <ErrorMessage msg={errors["colors"]} />}
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <Button className="bg-indigo-700 hover:bg-indigo-800">
+              Submit
+            </Button>
+            <Button
+              className="bg-gray-700 hover:bg-gray-800"
+              onClick={closeEditModal}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
       <Modal isOpen={isOpen} closeModal={closeModal} title="ADD A NEW PRODUCT">
         <form className="space-y-3" onSubmit={submitHandler}>
           {renderFormInputList}

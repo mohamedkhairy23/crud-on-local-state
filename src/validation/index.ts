@@ -8,7 +8,7 @@ export const productValidation = (product: {
   description: string;
   imageURL: string;
   price: string;
-  colors: string[];
+  colors?: string[];
 }) => {
   // returns an oject
   const errors: {
@@ -52,7 +52,7 @@ export const productValidation = (product: {
     errors.price = "Valid price is required";
   }
 
-  if (product.colors.length === 0) {
+  if (product.colors?.length === 0) {
     errors.colors = "at least one color should be added";
   }
 
