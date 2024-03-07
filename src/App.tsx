@@ -260,8 +260,12 @@ const App = () => {
 
   return (
     <main className="container">
-      <Button className="bg-indigo-700 hover:bg-indigo-800" onClick={openModal}>
-        Add
+      <Button
+        className="block bg-indigo-700 hover:bg-indigo-800 mx-auto my-10 px-10 font-medium"
+        onClick={openModal}
+        width="w-fit"
+      >
+        Add Product
       </Button>
       <div className="m-5 grid  grid-cols-1 sm:grid-cols-2  lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-4 p-2 rounded-md">
         {renderProductList}
@@ -316,7 +320,7 @@ const App = () => {
               Submit
             </Button>
             <Button
-              className="bg-gray-200 text-black hover:bg-gray-300"
+              className="bg-[#f5f5fa] hover:bg-gray-300 !text-black"
               onClick={closeEditModal}
             >
               Cancel
@@ -357,7 +361,7 @@ const App = () => {
               Submit
             </Button>
             <Button
-              className="bg-gray-200 text-black hover:bg-gray-300"
+              className="bg-[#f5f5fa] hover:bg-gray-300 !text-black"
               onClick={onCancel}
             >
               Cancel
