@@ -11,6 +11,7 @@ import CircleColor from "./components/UI/CircleColor";
 import { v4 as uuid } from "uuid";
 import Select from "./components/UI/Select";
 import { ProductNameTypes } from "./types";
+import toast, { Toaster } from "react-hot-toast";
 
 const App = () => {
   const defaultProductObj = {
@@ -33,6 +34,7 @@ const App = () => {
   const [productToEditIdx, setProductToEditIdx] = useState<number>(0);
   console.log(productToEditIdx);
   const [isOpenEditModal, setIsOpenEditModal] = useState(false);
+  const [isOpenConfirmModal, setIsOpenConfirmModal] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [errors, setErrors] = useState({
     title: "",
@@ -50,6 +52,8 @@ const App = () => {
   const openModal = () => setIsOpen(true);
   const closeEditModal = () => setIsOpenEditModal(false);
   const openEditModal = () => setIsOpenEditModal(true);
+  const closeConfirmModal = () => setIsOpenConfirmModal(false);
+  const openConfirmModal = () => setIsOpenConfirmModal(true);
 
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target;
@@ -111,6 +115,12 @@ const App = () => {
     setProduct(defaultProductObj);
     setTempColors([]);
     closeModal();
+    toast.success("Product has been added", {
+      style: {
+        backgroundColor: "black",
+        color: "white",
+      },
+    });
   };
 
   const submitEditHandler = (e: FormEvent<HTMLFormElement>): void => {
@@ -144,6 +154,28 @@ const App = () => {
     setProductToEdit(defaultProductObj);
     setTempColors([]);
     closeEditModal();
+
+    toast.success("Product has been edited", {
+      style: {
+        backgroundColor: "black",
+        color: "white",
+      },
+    });
+  };
+
+  const removeProductHandler = () => {
+    // console.log(`You want to delete product ${productToEdit.id}`);
+    const filtered = products.filter(
+      (product) => product.id !== productToEdit.id
+    );
+    setProducts(filtered);
+    closeConfirmModal();
+    toast.success("Product has been deleted", {
+      style: {
+        backgroundColor: "black",
+        color: "white",
+      },
+    });
   };
 
   const onCancel = () => {
@@ -158,6 +190,7 @@ const App = () => {
       key={product.id}
       setProductToEdit={setProductToEdit}
       openEditModal={openEditModal}
+      openConfirmModal={openConfirmModal}
       idx={idx}
       setProductToEditIdx={setProductToEditIdx}
     />
@@ -283,7 +316,7 @@ const App = () => {
               Submit
             </Button>
             <Button
-              className="bg-gray-700 hover:bg-gray-800"
+              className="bg-gray-200 text-black hover:bg-gray-300"
               onClick={closeEditModal}
             >
               Cancel
@@ -324,7 +357,7 @@ const App = () => {
               Submit
             </Button>
             <Button
-              className="bg-gray-700 hover:bg-gray-800"
+              className="bg-gray-200 text-black hover:bg-gray-300"
               onClick={onCancel}
             >
               Cancel
@@ -332,6 +365,32 @@ const App = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Delete prod confirm modal */}
+      <Modal
+        isOpen={isOpenConfirmModal}
+        closeModal={closeConfirmModal}
+        title="Are you sure you want to remove this Product from your Store?"
+        description="Deleting this product will remove it permanently from your inventory. Any associated data, sales history, and other related information will also be deleted. Please make sure this is the intended action."
+      >
+        <div className="flex items-center space-x-3">
+          <Button
+            className="bg-[#c2344d] hover:bg-red-800"
+            onClick={removeProductHandler}
+          >
+            Yes, remove
+          </Button>
+          <Button
+            type="button"
+            className="bg-[#f5f5fa] hover:bg-gray-300 !text-black"
+            onClick={closeConfirmModal}
+          >
+            Cancel
+          </Button>
+        </div>
+      </Modal>
+
+      <Toaster />
     </main>
   );
 };
