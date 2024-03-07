@@ -51,7 +51,9 @@ const ProductCard = ({
       <h3>{title}</h3>
       <p>{txtSlicer(description)}</p>
 
-      <div className="flex items-center space-x-2">{renderProductColors}</div>
+      <div className="flex items-center space-x-2">
+        {colors.length === 0 ? <p>No colors aded yet</p> : renderProductColors}
+      </div>
 
       <div className="flex justify-items-center justify-between">
         <span>${price}</span>
