@@ -254,8 +254,10 @@ const App = () => {
           {renderProducEditWithErrorMsg("price", "Product Price", "price")}
 
           <Select
-            selected={selectedCategory}
-            setSelected={setSelectedCategory}
+            selected={productToEdit.category}
+            setSelected={(value) =>
+              setProductToEdit({ ...productToEdit, category: value })
+            }
           />
 
           <div className="flex items-center space-x-2">
